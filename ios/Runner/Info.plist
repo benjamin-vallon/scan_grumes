@@ -45,7 +45,27 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Permission caméra -->
 	<key>NSCameraUsageDescription</key>
     <string>Cette application utilise la caméra pour scanner les codes-barres des grumes.</string>
+
+    <!-- Permissions fichiers pour partage/export -->
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>L'application a besoin d'accéder à la bibliothèque pour partager des fichiers CSV.</string>
+
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Utilisé pour accéder à la galerie afin d'exporter les fichiers.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Non utilisé mais requis par certains plugins.</string>
+
 </dict>
 </plist>
