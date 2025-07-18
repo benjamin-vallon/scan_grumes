@@ -12,6 +12,21 @@ import 'dart:convert';
 import 'dart:async';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    print('FlutterError: ${details.exception}');
+  };
+
+  runZonedGuarded(() {
+    runApp(const ScanApp());
+  }, (error, stackTrace) {
+    print('Uncaught error: $error');
+  });
+}
+
+' void main() {
   runApp(const ScanApp());
 }
 
