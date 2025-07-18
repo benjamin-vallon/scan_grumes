@@ -1,7 +1,7 @@
 name: scan_grume_sdc_clean
 description: Application mobile de scan
 publish_to: 'none'
-version: 1.0.0+13
+version: 1.0.0+14
 
 environment:
   sdk: '>=3.7.0 <4.0.0'
