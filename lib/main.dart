@@ -64,7 +64,6 @@ class ScannerPage extends StatefulWidget {
 }
 
 class _ScannerPageState extends State<ScannerPage> {
-  late MobileScannerController _cameraController;
   String? _transporteurMemoire;
   final _nomCtrl = TextEditingController();
   final _numChantier = TextEditingController();
@@ -79,13 +78,11 @@ class _ScannerPageState extends State<ScannerPage> {
   @override
   void initState() {
     super.initState();
-    _cameraController = MobileScannerController();
     _loadTransporteur();
   }
 
   @override
   void dispose() {
-    _cameraController.dispose();
     super.dispose();
   }
 
