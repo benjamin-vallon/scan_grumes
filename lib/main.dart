@@ -55,7 +55,9 @@ class ScanApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const ScannerPage(),
+        home: Scaffold(
+          body: Center(child: Text('TEST OK')),
+        );
     );
   }
 }
