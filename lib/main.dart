@@ -56,8 +56,13 @@ class ScanApp extends StatelessWidget {
         ),
       ),
         home: Scaffold(
-          body: Center(child: Text('TEST OK')),
-        );
+          body: Center(
+            child: Text(
+              'TEST OK',
+              style: TextStyle(fontSize: 30),
+            ),
+          ),
+        ),
     );
   }
 }
