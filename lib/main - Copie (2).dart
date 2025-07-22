@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 import 'package:share_plus/share_plus.dart';
@@ -809,8 +809,7 @@ class ManualScanPage extends StatefulWidget {
 }
 
 class _ManualScanPageState extends State<ManualScanPage> {
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? _qrController;
+  final MobileScannerController _cameraController = MobileScannerController();
   String? _lastDetected;
   String? _lastValidated;
   Timer? _resetTimer;
@@ -818,7 +817,7 @@ class _ManualScanPageState extends State<ManualScanPage> {
   @override
   void dispose() {
     _resetTimer?.cancel();
-    _qrController?.dispose();
+    _cameraController.dispose();
     super.dispose();
   }
 
@@ -840,27 +839,31 @@ class _ManualScanPageState extends State<ManualScanPage> {
       ),
       body: Stack(
         children: [
-          QRView(
-            key: qrKey,
-            onQRViewCreated: (controller) {
-              _qrController = controller;
-              controller.scannedDataStream.listen((scanData) {
-                final code = scanData.code;
-                if (code != null && code != _lastValidated) {
-                  setState(() => _lastDetected = code);
-                  _resetTimer?.cancel();
-                  _resetTimer = Timer(const Duration(seconds: 1), () {
-                    setState(() => _lastDetected = null);
-                  });
-                }
-              });
+          MobileScanner(
+            controller: _cameraController,
+            onDetect: (capture) {
+              final code = capture.barcodes.first.rawValue;
+              if (code != null && code != _lastValidated) {
+                setState(() => _lastDetected = code);
+
+                // ⏱ Si un nouveau code est visible, on relance le timer
+                _resetTimer?.cancel();
+                _resetTimer = Timer(const Duration(milliseconds: 1000), () {
+                  // Si aucun nouveau code n’est détecté pendant 1 seconde, on "oublie" celui-ci
+                  setState(() => _lastDetected = null);
+                });
+              }
             },
-            overlay: QrScannerOverlayShape(
-              borderColor: Colors.white,
-              borderRadius: 8,
-              borderLength: 30,
-              borderWidth: 5,
-              cutOutSize: 250,
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: Container(
+              width: 250,
+              height: 150,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 2),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
           Positioned(
