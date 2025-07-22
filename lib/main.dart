@@ -19,7 +19,6 @@ void main() {
   print("✅ runApp terminé");
 }
 
-
 class ScanApp extends StatelessWidget {
   const ScanApp({Key? key}) : super(key: key);
 
@@ -55,17 +54,18 @@ class ScanApp extends StatelessWidget {
           ),
         ),
       ),
-        home: Scaffold(
-          body: Center(
-            child: Text(
-              'TEST OK',
-              style: TextStyle(fontSize: 30),
-            ),
+      home: Scaffold(
+        body: Center(
+          child: Text(
+            'TEST SANS CAMERA',
+            style: TextStyle(fontSize: 30),
           ),
         ),
+      ),
     );
   }
 }
+
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({Key? key}) : super(key: key);
