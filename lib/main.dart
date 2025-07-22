@@ -83,7 +83,6 @@ class _ScannerPageState extends State<ScannerPage> {
   void initState() {
     super.initState();
     print("🔄 initState() de ScannerPage lancé");
-    _cameraController = MobileScannerController(); // si encore là (sinon ignorer)
     _loadTransporteur();
   }
 
