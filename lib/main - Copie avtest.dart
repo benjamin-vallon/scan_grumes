@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 import 'package:share_plus/share_plus.dart';
@@ -12,7 +12,11 @@ import 'dart:convert';
 import 'dart:async';
 
 void main() {
+  print("👉 DÉBUT DE main()");
+  WidgetsFlutterBinding.ensureInitialized();
+  print("✅ WidgetsFlutterBinding.ensureInitialized()");
   runApp(const ScanApp());
+  print("✅ runApp terminé");
 }
 
 class ScanApp extends StatelessWidget {
@@ -50,10 +54,18 @@ class ScanApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const ScannerPage(),
+      home: Scaffold(
+        body: Center(
+          child: Text(
+            'TEST SANS CAMERA',
+            style: TextStyle(fontSize: 30),
+          ),
+        ),
+      ),
     );
   }
 }
+
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({Key? key}) : super(key: key);
@@ -63,7 +75,6 @@ class ScannerPage extends StatefulWidget {
 }
 
 class _ScannerPageState extends State<ScannerPage> {
-  late MobileScannerController _cameraController;
   String? _transporteurMemoire;
   final _nomCtrl = TextEditingController();
   final _numChantier = TextEditingController();
@@ -78,20 +89,22 @@ class _ScannerPageState extends State<ScannerPage> {
   @override
   void initState() {
     super.initState();
-    _cameraController = MobileScannerController();
+    print("🔄 initState() de ScannerPage lancé");
     _loadTransporteur();
   }
 
   @override
   void dispose() {
-    _cameraController.dispose();
     super.dispose();
   }
 
   Future<void> _loadTransporteur() async {
+    print("📦 Chargement SharedPreferences...");
     final prefs = await SharedPreferences.getInstance();
+    print("✅ SharedPreferences récupéré");
     setState(() {
       _transporteurMemoire = prefs.getString('transporteur') ?? '';
+      print("📌 Transporteur mémorisé : $_transporteurMemoire");
     });
   }
 
@@ -129,6 +142,7 @@ class _ScannerPageState extends State<ScannerPage> {
 
     final fileName = 'bl_${dateEnvoi}_$numCh.csv';
     final dir = await getApplicationDocumentsDirectory();
+    print("📂 Dossier documents récupéré : ${dir.path}");
     final path = '${dir.path}/$fileName';
     await File(path).writeAsString('\ufeff${buffer.toString()}', encoding: utf8);
     return path;
@@ -808,7 +822,8 @@ class ManualScanPage extends StatefulWidget {
 }
 
 class _ManualScanPageState extends State<ManualScanPage> {
-  final MobileScannerController _cameraController = MobileScannerController();
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  QRViewController? _qrController;
   String? _lastDetected;
   String? _lastValidated;
   Timer? _resetTimer;
@@ -816,7 +831,7 @@ class _ManualScanPageState extends State<ManualScanPage> {
   @override
   void dispose() {
     _resetTimer?.cancel();
-    _cameraController.dispose();
+    _qrController?.dispose();
     super.dispose();
   }
 
@@ -838,31 +853,27 @@ class _ManualScanPageState extends State<ManualScanPage> {
       ),
       body: Stack(
         children: [
-          MobileScanner(
-            controller: _cameraController,
-            onDetect: (capture) {
-              final code = capture.barcodes.first.rawValue;
-              if (code != null && code != _lastValidated) {
-                setState(() => _lastDetected = code);
-
-                // ⏱ Si un nouveau code est visible, on relance le timer
-                _resetTimer?.cancel();
-                _resetTimer = Timer(const Duration(milliseconds: 1000), () {
-                  // Si aucun nouveau code n’est détecté pendant 1 seconde, on "oublie" celui-ci
-                  setState(() => _lastDetected = null);
-                });
-              }
+          QRView(
+            key: qrKey,
+            onQRViewCreated: (controller) {
+              _qrController = controller;
+              controller.scannedDataStream.listen((scanData) {
+                final code = scanData.code;
+                if (code != null && code != _lastValidated) {
+                  setState(() => _lastDetected = code);
+                  _resetTimer?.cancel();
+                  _resetTimer = Timer(const Duration(seconds: 1), () {
+                    setState(() => _lastDetected = null);
+                  });
+                }
+              });
             },
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              width: 250,
-              height: 150,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 2),
-                borderRadius: BorderRadius.circular(8),
-              ),
+            overlay: QrScannerOverlayShape(
+              borderColor: Colors.white,
+              borderRadius: 8,
+              borderLength: 30,
+              borderWidth: 5,
+              cutOutSize: 250,
             ),
           ),
           Positioned(
