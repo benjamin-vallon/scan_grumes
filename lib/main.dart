@@ -12,9 +12,13 @@ import 'dart:convert';
 import 'dart:async';
 
 void main() {
+  print("👉 DÉBUT DE main()");
   WidgetsFlutterBinding.ensureInitialized();
+  print("✅ WidgetsFlutterBinding.ensureInitialized()");
   runApp(const ScanApp());
+  print("✅ runApp terminé");
 }
+
 
 class ScanApp extends StatelessWidget {
   const ScanApp({Key? key}) : super(key: key);
@@ -78,6 +82,8 @@ class _ScannerPageState extends State<ScannerPage> {
   @override
   void initState() {
     super.initState();
+    print("🔄 initState() de ScannerPage lancé");
+    _cameraController = MobileScannerController(); // si encore là (sinon ignorer)
     _loadTransporteur();
   }
 
@@ -87,9 +93,12 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   Future<void> _loadTransporteur() async {
+    print("📦 Chargement SharedPreferences...");
     final prefs = await SharedPreferences.getInstance();
+    print("✅ SharedPreferences récupéré");
     setState(() {
       _transporteurMemoire = prefs.getString('transporteur') ?? '';
+      print("📌 Transporteur mémorisé : $_transporteurMemoire");
     });
   }
 
@@ -127,6 +136,7 @@ class _ScannerPageState extends State<ScannerPage> {
 
     final fileName = 'bl_${dateEnvoi}_$numCh.csv';
     final dir = await getApplicationDocumentsDirectory();
+    print("📂 Dossier documents récupéré : ${dir.path}");
     final path = '${dir.path}/$fileName';
     await File(path).writeAsString('\ufeff${buffer.toString()}', encoding: utf8);
     return path;
