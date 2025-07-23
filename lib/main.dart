@@ -205,7 +205,17 @@ class _ScannerPageState extends State<ScannerPage> {
                         onPressed: () async {
                           try {
                             final nomFichier = file.path.split('/').last;
-                            final dirExterne = Directory('/storage/emulated/0/Documents/Scan_Grumes');
+
+                            Directory dirExterne;
+
+                            if (Platform.isAndroid) {
+                              dirExterne = Directory('/storage/emulated/0/Documents/Scan_Grumes');
+                            } else if (Platform.isIOS) {
+                              // iOS : dossier documents interne à l'application
+                              dirExterne = await getApplicationDocumentsDirectory();
+                            } else {
+                              throw UnsupportedError('Plateforme non supportée');
+                            }
 
                             if (!await dirExterne.exists()) {
                               await dirExterne.create(recursive: true);
@@ -227,14 +237,8 @@ class _ScannerPageState extends State<ScannerPage> {
                             );
 
                             if (confirmer == true) {
-                              // 🔍 Extraction du numéro et nom du chantier depuis le nom du fichier
-                              final parts = nomFichier.replaceAll('.csv', '').split('_');
-                              final date = parts.length >= 2 ? parts[1] : '??';
-                              final numChantier = parts.length >= 3 ? parts[2] : '??';
-                              final nomChantier = parts.length >= 4 ? parts.sublist(3).join('_') : '';
-
                               await Share.shareXFiles(
-                                [XFile(file.path)],
+                                [XFile(nouveauFichier.path)],
                                 subject: 'ATTENTION ENVOI EN DOUBLE',
                                 text: 'Merci d’envoyer ce fichier à l’adresse suivante :\n\n📧 grumier@scierie-sdc.fr',
                               );
